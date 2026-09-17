@@ -20,8 +20,9 @@ import { Toast } from './components/Toast';
 import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { TermsPage } from './components/TermsPage';
 import { SupportPage } from './components/SupportPage';
+import { SitemapPage } from './components/SitemapPage';
 
-export type AppView = 'home' | 'pay' | 'privacy' | 'terms' | 'support';
+export type AppView = 'home' | 'pay' | 'privacy' | 'terms' | 'support' | 'sitemap';
 
 interface RouteState {
   currentView: AppView;
@@ -31,9 +32,9 @@ interface RouteState {
 }
 
 /**
- * Parses pathname or hash to identify statutory legal or support views
+ * Parses pathname or hash to identify statutory legal, support, or sitemap views
  */
-function detectStaticViewFromUrl(): 'privacy' | 'terms' | 'support' | null {
+function detectStaticViewFromUrl(): 'privacy' | 'terms' | 'support' | 'sitemap' | null {
   if (typeof window === 'undefined') return null;
   const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
   const hash = window.location.hash.toLowerCase();
@@ -52,6 +53,15 @@ function detectStaticViewFromUrl(): 'privacy' | 'terms' | 'support' | null {
     hash === '#/contact'
   ) {
     return 'support';
+  }
+  if (
+    path === '/sitemap' ||
+    path === '/sitemap.xml' ||
+    hash === '#/sitemap' ||
+    hash === '#sitemap' ||
+    hash === '#/sitemap.xml'
+  ) {
+    return 'sitemap';
   }
   return null;
 }
@@ -316,6 +326,9 @@ export default function App() {
         ) : currentView === 'support' ? (
           // Support & Contact Page
           <SupportPage onBack={handleNavigateHome} onShowToast={setToastMessage} />
+        ) : currentView === 'sitemap' ? (
+          // XML Sitemap Index Page
+          <SitemapPage onBack={handleNavigateHome} onShowToast={setToastMessage} />
         ) : currentView === 'pay' ? (
           // Payment Page View
           routeError ? (

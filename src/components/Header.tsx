@@ -5,11 +5,11 @@ import { ARVENTA_LOGO_DATA_URL } from '../assets/logo';
 interface HeaderProps {
   onBackToHome?: () => void;
   showBackButton?: boolean;
-  onNavigate?: (view: 'home' | 'privacy' | 'terms' | 'support') => void;
+  onNavigate?: (view: 'home' | 'privacy' | 'terms' | 'support' | 'sitemap') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onBackToHome, showBackButton, onNavigate }) => {
-  const handleNav = (e: React.MouseEvent, view: 'home' | 'privacy' | 'terms' | 'support') => {
+  const handleNav = (e: React.MouseEvent, view: 'home' | 'privacy' | 'terms' | 'support' | 'sitemap') => {
     if (onNavigate) {
       e.preventDefault();
       onNavigate(view);

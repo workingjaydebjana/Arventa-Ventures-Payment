@@ -1,1 +1,7 @@
-/* /index.html 200
+# Direct static assets pass-through
+/sitemap.xml    /sitemap.xml    200
+/sitemap.xsl    /sitemap.xsl    200
+/robots.txt     /robots.txt     200
+
+# Single Page Application SPA fallback
+/*              /index.html     200

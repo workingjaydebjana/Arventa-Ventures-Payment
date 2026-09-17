@@ -1,12 +1,12 @@
 import React from 'react';
-import { ShieldCheck, ExternalLink, Mail, FileText, Scale, Headphones } from 'lucide-react';
+import { ShieldCheck, ExternalLink, Mail, FileText, Scale, Headphones, Map } from 'lucide-react';
 
 interface FooterProps {
-  onNavigate?: (view: 'home' | 'privacy' | 'terms' | 'support') => void;
+  onNavigate?: (view: 'home' | 'privacy' | 'terms' | 'support' | 'sitemap') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const handleNav = (e: React.MouseEvent, view: 'home' | 'privacy' | 'terms' | 'support') => {
+  const handleNav = (e: React.MouseEvent, view: 'home' | 'privacy' | 'terms' | 'support' | 'sitemap') => {
     if (onNavigate) {
       e.preventDefault();
       onNavigate(view);
@@ -77,6 +77,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 >
                   <Headphones className="w-3.5 h-3.5" />
                   <span>Support Center</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/sitemap.xml"
+                  onClick={(e) => handleNav(e, 'sitemap')}
+                  className="flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                >
+                  <Map className="w-3.5 h-3.5 text-slate-400" />
+                  <span>XML Sitemap</span>
                 </a>
               </li>
               <li>
@@ -157,6 +167,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               className="hover:text-slate-600"
             >
               Terms
+            </a>
+            <a
+              href="/sitemap.xml"
+              onClick={(e) => handleNav(e, 'sitemap')}
+              className="hover:text-slate-600"
+            >
+              Sitemap
             </a>
             <a
               href="/support"
