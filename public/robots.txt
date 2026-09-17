@@ -1,6 +1,15 @@
 # Robots.txt for https://payment.arventaventures.online
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 User-agent: *
 Allow: /
 
-# Sitemaps
+# XML Sitemap Index
 Sitemap: https://payment.arventaventures.online/sitemap.xml
