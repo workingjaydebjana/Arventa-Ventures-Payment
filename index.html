@@ -12,6 +12,139 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- 100% Netlify Badge Remover CSS & JavaScript -->
+    <style id="anti-netlify-badge-style">
+      [data-netlify-badge],
+      [data-netlify-drawer],
+      [id*="netlify" i],
+      [class*="netlify" i],
+      a[href*="netlify.com"],
+      a[href*="netlify.app"],
+      iframe[src*="netlify"],
+      div:has(> a[href*="netlify.com"]),
+      div:has(a[href*="netlify.com"]),
+      div:has(img[alt*="Netlify" i]),
+      div:has(svg[aria-label*="Netlify" i]) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: fixed !important;
+        bottom: -9999px !important;
+        right: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        clip: rect(0, 0, 0, 0) !important;
+        z-index: -99999 !important;
+      }
+    </style>
+    <script>
+      (function() {
+        function purgeNetlifyBadge() {
+          try {
+            // 1. Target elements with Netlify links, classes or IDs
+            var selectors = [
+              'a[href*="netlify.com"]',
+              'a[href*="netlify.app"]',
+              '[data-netlify-badge]',
+              '[data-netlify-drawer]',
+              '[id*="netlify" i]',
+              '[class*="netlify" i]',
+              'iframe[src*="netlify"]'
+            ];
+            var targets = document.querySelectorAll(selectors.join(','));
+            for (var i = 0; i < targets.length; i++) {
+              var el = targets[i];
+              var floatingParent = el.closest('div, aside, span, section');
+              if (floatingParent && (
+                window.getComputedStyle(floatingParent).position === 'fixed' ||
+                window.getComputedStyle(floatingParent).position === 'sticky' ||
+                floatingParent.style.position === 'fixed'
+              )) {
+                floatingParent.remove();
+              } else {
+                el.remove();
+              }
+            }
+
+            // 2. Scan all text nodes for "Powered by Netlify"
+            var walker = document.createTreeWalker(
+              document.body || document.documentElement,
+              NodeFilter.SHOW_TEXT,
+              null,
+              false
+            );
+            var node;
+            var toRemove = [];
+            while ((node = walker.nextNode())) {
+              var val = (node.nodeValue || '').trim().toLowerCase();
+              if (val.indexOf('powered by netlify') !== -1 || val.indexOf('netlify') !== -1) {
+                var parent = node.parentElement;
+                if (parent && parent.tagName !== 'SCRIPT' && parent.tagName !== 'STYLE') {
+                  var container = parent.closest('div[style*="fixed"], [style*="position: fixed"], .fixed') || parent.closest('a') || parent;
+                  toRemove.push(container);
+                }
+              }
+            }
+            for (var j = 0; j < toRemove.length; j++) {
+              try {
+                if (toRemove[j] && toRemove[j].parentNode) {
+                  toRemove[j].parentNode.removeChild(toRemove[j]);
+                }
+              } catch (e) {}
+            }
+
+            // 3. Purge shadow roots if any
+            var all = document.querySelectorAll('*');
+            for (var k = 0; k < all.length; k++) {
+              if (all[k].shadowRoot) {
+                var shadowBadges = all[k].shadowRoot.querySelectorAll('[id*="netlify" i], [class*="netlify" i], a[href*="netlify"]');
+                for (var s = 0; s < shadowBadges.length; s++) {
+                  shadowBadges[s].remove();
+                }
+              }
+            }
+          } catch (err) {}
+        }
+
+        purgeNetlifyBadge();
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', purgeNetlifyBadge);
+        }
+        window.addEventListener('load', purgeNetlifyBadge);
+
+        // Real-time MutationObserver to catch background dynamic injections immediately
+        if (typeof MutationObserver !== 'undefined') {
+          var observer = new MutationObserver(function() {
+            purgeNetlifyBadge();
+          });
+
+          var initObserver = function() {
+            var root = document.body || document.documentElement;
+            if (root) {
+              observer.observe(root, { childList: true, subtree: true, attributes: true });
+            }
+          };
+
+          initObserver();
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initObserver);
+          }
+        }
+
+        // Fast poll loop for first 15 seconds to guarantee 100% destruction
+        var pollTimer = setInterval(purgeNetlifyBadge, 100);
+        setTimeout(function() {
+          clearInterval(pollTimer);
+          // Keep a light 3-second heartbeat monitor
+          setInterval(purgeNetlifyBadge, 3000);
+        }, 15000);
+      })();
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased font-sans selection:bg-indigo-500 selection:text-white min-h-screen">
     <div id="root"></div>
