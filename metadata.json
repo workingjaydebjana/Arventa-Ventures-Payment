@@ -1,6 +1,6 @@
 {
   "name": "Remix Arventa Ventures Payment",
-  "description": "Generate instant, secure client-side UPI payment links and dynamic QR codes for Google Pay, PhonePe, Paytm, and BHIM with Arventa Ventures Payment.",
+  "description": "Free instant UPI payment link generator & dynamic QR code maker. Create secure UPI payment links with custom amounts for Google Pay, PhonePe, Paytm, and BHIM with 0% gateway fees.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

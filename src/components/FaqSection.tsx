@@ -8,29 +8,44 @@ interface FaqItem {
 
 const FAQ_ITEMS: FaqItem[] = [
   {
-    question: 'How do I create an instant UPI payment link?',
+    question: 'How do I create a free UPI payment link with custom amount?',
     answer:
-      'Enter the recipient UPI ID (VPA), amount in Indian Rupees (INR), payee name, and an optional message or note. Click "Generate Payment Link" to instantly receive a shareable link and branded dynamic QR code ready for instant payments.',
+      'Enter the payee UPI ID (Virtual Payment Address like yourname@okaxis, yourname@ybl, or mobile@paytm), recipient name, exact amount in Indian Rupees (INR), and an optional memo/note. Click "Generate Payment Link" to instantly receive a tamper-proof shareable URL and dynamic scannable QR code.',
   },
   {
     question: 'Can customers pay using Google Pay, PhonePe, Paytm, or BHIM?',
     answer:
-      'Yes. The payment links and dynamic QR codes adhere strictly to the National Payments Corporation of India (NPCI) universal upi:// protocol standard, supporting Google Pay, PhonePe, Paytm, BHIM, CRED, Amazon Pay, and all Indian mobile banking apps.',
+      'Yes. The payment links and dynamic QR codes adhere strictly to the National Payments Corporation of India (NPCI) universal upi://pay specification. It works seamlessly with Google Pay (GPay), PhonePe, Paytm, BHIM, CRED UPI, Amazon Pay, WhatsApp Pay, and all Indian mobile banking apps (SBI YONO, HDFC PayZapp, ICICI iMobile, Axis Pay).',
   },
   {
-    question: 'Are my payment details or bank information saved on a server?',
+    question: 'Is there any transaction fee, commission, or hidden charge?',
     answer:
-      'No. Arventa Ventures Payment uses 100% client-side cryptographic encoding. No database, server, or tracking cookie stores your payment details. All payment parameters are safely encapsulated directly within the self-contained URL.',
+      'No. Arventa Ventures Payment is 100% free with 0% transaction fees. Unlike commercial payment gateways that charge 2% to 3% plus GST on every transaction, Arventa Ventures uses direct peer-to-peer (P2P) and peer-to-merchant (P2M) UPI protocols where funds settle directly into your bank account without deductions.',
   },
   {
-    question: 'Can the payment link be tampered with or modified?',
+    question: 'How is this different from payment gateways like Razorpay or Cashfree?',
     answer:
-      'No. Every generated payment link incorporates a deterministic cryptographic checksum signature. If any parameter (such as the amount or UPI ID) is modified in the URL, the link becomes invalid and the application prevents unauthorized transactions.',
+      'Traditional payment gateways require company registration, KYC approvals, days of merchant onboarding, and hold your funds for 2-3 settlement days before depositing them. Arventa Ventures requires zero sign-up, zero paperwork, zero database storage, and delivers instant bank settlement directly to your UPI-linked bank account in seconds.',
+  },
+  {
+    question: 'Are my payment details or bank information saved on any server?',
+    answer:
+      'No. Arventa Ventures Payment operates with a strict Zero-Data-Retention architecture. Everything is calculated in client-side browser memory. No server database stores your UPI ID, recipient name, or payment amount. All data is securely encapsulated inside the URL with cryptographic tamper-proofing.',
+  },
+  {
+    question: 'Can a buyer tamper with or alter the payment amount in the link?',
+    answer:
+      'No. Every generated payment link incorporates a deterministic cryptographic checksum token. If anyone alters the amount, recipient UPI ID, or payee name in the URL parameters, the payment page automatically detects tampering, flags the link as invalid, and blocks the payment flow for security.',
+  },
+  {
+    question: 'What is the maximum UPI payment limit per transaction in India?',
+    answer:
+      'As per Reserve Bank of India (RBI) and NPCI guidelines, standard UPI peer-to-peer transactions allow up to ₹1,00,000 (1 Lakh INR) per transaction/day. Verified merchant categories (such as education, healthcare, and capital markets) permit limits up to ₹2,00,000 to ₹5,00,000 depending on the issuing bank.',
   },
   {
     question: 'Can I share the payment link via WhatsApp, SMS, or Email?',
     answer:
-      'Absolutely. With one click, you can copy the link or share it directly across WhatsApp, Telegram, SMS, or social media. Anyone opening the link is taken directly to the streamlined payment page with one-tap UPI app launching.',
+      'Yes. You can copy the generated payment link with one click and send it via WhatsApp, Telegram, SMS, Email, or social media. When mobile users click the link, it opens a clean payment screen with instant buttons to launch Google Pay, PhonePe, Paytm, or BHIM directly.',
   },
 ];
 
@@ -42,17 +57,17 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section className="w-full max-w-4xl mx-auto my-12 px-4 sm:px-6">
+    <section id="faq" className="w-full max-w-4xl mx-auto my-12 px-4 sm:px-6 scroll-mt-20">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-2">
           <HelpCircle className="w-3.5 h-3.5" />
           <span>Frequently Asked Questions</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-          Everything You Need to Know
+          Everything You Need to Know About UPI Payment Links
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-md mx-auto">
-          Common questions about Arventa Ventures UPI payment link and QR generator.
+        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-lg mx-auto">
+          Answers to common questions about generating UPI links, dynamic QR codes, zero gateway fees, and payment security.
         </p>
       </div>
 
@@ -67,7 +82,7 @@ export const FaqSection: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleIndex(index)}
-                className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 focus:outline-hidden hover:bg-slate-50/50 transition-colors"
+                className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 focus:outline-hidden hover:bg-slate-50/50 transition-colors cursor-pointer"
                 aria-expanded={isOpen}
               >
                 <span className="text-sm font-semibold text-slate-800">

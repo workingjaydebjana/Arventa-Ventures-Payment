@@ -10,9 +10,21 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://payment.arventaventures.online/pay</loc>
+    <loc>https://payment.arventaventures.online/support</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://payment.arventaventures.online/privacy</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://payment.arventaventures.online/terms</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

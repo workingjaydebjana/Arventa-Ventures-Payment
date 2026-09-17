@@ -13,20 +13,52 @@ import { PaymentPage } from './components/PaymentPage';
 import { ErrorState } from './components/ErrorState';
 import { HowItWorks } from './components/HowItWorks';
 import { FaqSection } from './components/FaqSection';
+import { SeoFeaturesSection } from './components/SeoFeaturesSection';
 import { PrivacyNote } from './components/PrivacyNote';
 import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
+import { TermsPage } from './components/TermsPage';
+import { SupportPage } from './components/SupportPage';
+
+export type AppView = 'home' | 'pay' | 'privacy' | 'terms' | 'support';
 
 interface RouteState {
-  currentView: 'home' | 'pay';
+  currentView: AppView;
   activePaymentData: PaymentData | null;
   routeError: { title: string; message: string; buttonLabel: string } | null;
   isLoading: boolean;
 }
 
 /**
+ * Parses pathname or hash to identify statutory legal or support views
+ */
+function detectStaticViewFromUrl(): 'privacy' | 'terms' | 'support' | null {
+  if (typeof window === 'undefined') return null;
+  const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+  const hash = window.location.hash.toLowerCase();
+
+  if (path === '/privacy' || hash === '#/privacy' || hash === '#privacy') {
+    return 'privacy';
+  }
+  if (path === '/terms' || hash === '#/terms' || hash === '#terms') {
+    return 'terms';
+  }
+  if (
+    path === '/support' ||
+    hash === '#/support' ||
+    hash === '#support' ||
+    path === '/contact' ||
+    hash === '#/contact'
+  ) {
+    return 'support';
+  }
+  return null;
+}
+
+/**
  * Evaluates the initial URL synchronously before first render
- * so the home page never flashes on payment links.
+ * so the home page never flashes on payment or legal links.
  */
 function computeInitialRouteState(): RouteState {
   if (typeof window === 'undefined') {
@@ -38,6 +70,18 @@ function computeInitialRouteState(): RouteState {
     };
   }
 
+  // 1. Check statutory pages (Privacy, Terms, Support)
+  const staticView = detectStaticViewFromUrl();
+  if (staticView) {
+    return {
+      currentView: staticView,
+      activePaymentData: null,
+      routeError: null,
+      isLoading: false,
+    };
+  }
+
+  // 2. Check payment deep link
   const { isPaymentRoute, data, error } = parsePaymentDataFromUrl();
 
   if (isPaymentRoute) {
@@ -96,6 +140,17 @@ export default function App() {
 
   // Parse location and sync view on browser back/forward buttons
   const syncRouteFromLocation = useCallback(() => {
+    const staticView = detectStaticViewFromUrl();
+    if (staticView) {
+      setRouteState({
+        currentView: staticView,
+        activePaymentData: null,
+        routeError: null,
+        isLoading: false,
+      });
+      return;
+    }
+
     const { isPaymentRoute, data, error } = parsePaymentDataFromUrl();
 
     if (isPaymentRoute) {
@@ -130,7 +185,7 @@ export default function App() {
     }
   }, []);
 
-  // Listen to browser navigation (back/forward)
+  // Listen to browser navigation (back/forward and hash changes)
   useEffect(() => {
     const handlePopState = () => {
       syncRouteFromLocation();
@@ -144,6 +199,28 @@ export default function App() {
       window.removeEventListener('hashchange', handlePopState);
     };
   }, [syncRouteFromLocation]);
+
+  // Navigation router handler
+  const handleNavigateTo = (view: AppView) => {
+    if (view === 'home') {
+      window.history.pushState({}, '', '/');
+      setRouteState({
+        currentView: 'home',
+        activePaymentData: null,
+        routeError: null,
+        isLoading: false,
+      });
+    } else {
+      window.history.pushState({}, '', `/${view}`);
+      setRouteState({
+        currentView: view,
+        activePaymentData: null,
+        routeError: null,
+        isLoading: false,
+      });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Navigate to /pay client-side
   const handleOpenPaymentPage = (url?: string, data?: PaymentData) => {
@@ -164,86 +241,84 @@ export default function App() {
 
   // Navigate back to generator home
   const handleNavigateHome = () => {
-    window.history.pushState({}, '', '/');
-    setRouteState({
-      currentView: 'home',
-      activePaymentData: null,
-      routeError: null,
-      isLoading: false,
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigateTo('home');
   };
 
-  // Handler for "Generate Payment Link"
+  // Generate payment link from form inputs
   const handleGenerateLink = (data: PaymentData) => {
     const shareableUrl = buildShareablePaymentUrl(data);
     setGeneratedResult({
       url: shareableUrl,
-      data,
+      data: data,
     });
-    setToastMessage('Payment link generated!');
 
-    // Smooth scroll down to result
+    setToastMessage('UPI payment link generated successfully!');
+
+    // Smoothly scroll down to the generated link section on mobile
     setTimeout(() => {
-      const resultElem = document.getElementById('generated-link-section');
-      if (resultElem) {
-        resultElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const section = document.getElementById('generated-link-section');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 100);
   };
 
+  // Reset generator to initial clean state
   const handleResetGenerator = () => {
     setGeneratedResult(null);
+    setToastMessage('Generator reset');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const { currentView, activePaymentData, routeError, isLoading } = routeState;
 
   return (
-    <div
-      className={`min-h-screen flex flex-col bg-slate-50/70 text-slate-900 selection:bg-indigo-500 selection:text-white ${
-        currentView === 'pay' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : ''
-      }`}
-    >
-      {/* Universal Header (Only shown on home/generator view) */}
-      {currentView !== 'pay' && (
-        <Header
-          onBackToHome={undefined}
-          showBackButton={false}
-        />
-      )}
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
+      {/* Header - Always rendered with view-aware actions */}
+      <Header
+        onBackToHome={currentView !== 'home' ? handleNavigateHome : undefined}
+        showBackButton={currentView !== 'home'}
+        onNavigate={handleNavigateTo}
+      />
 
-      {/* Main Container */}
-      <main
-        className={`flex-1 w-full ${
-          currentView === 'pay'
-            ? 'h-full max-h-[100dvh] overflow-hidden p-0'
-            : 'max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10'
-        }`}
-      >
-        {currentView === 'pay' ? (
-          // Payment Page Route View
-          isLoading ? (
-            // Branded Loading State when opening a payment link
-            <div className="w-full h-[100dvh] flex flex-col items-center justify-center p-4 bg-slate-50 select-none">
-              <div className="relative mb-3.5">
-                <div className="w-16 h-16 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center p-1.5 overflow-hidden">
+      {/* Main View Area */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        {isLoading ? (
+          // Transition Loader
+          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden p-0.5 bg-white shadow-xs">
                   <img
                     src={ARVENTA_LOGO_DATA_URL}
-                    alt="Arventa Ventures"
+                    alt="Arventa"
                     className="w-full h-full object-contain rounded-full"
                   />
                 </div>
-                <div className="absolute -inset-1 rounded-full border-2 border-indigo-600/30 border-t-indigo-600 animate-spin" />
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                Arventa Ventures Payment
-              </h2>
-              <p className="text-[11px] text-slate-500 font-medium mt-1 animate-pulse">
-                Securing payment session...
-              </p>
             </div>
-          ) : routeError ? (
+            <div className="text-center">
+              <span className="text-sm font-bold text-slate-800 tracking-tight block">
+                Arventa Ventures Payment
+              </span>
+              <span className="text-xs text-slate-400">
+                Verifying secure payment parameters...
+              </span>
+            </div>
+          </div>
+        ) : currentView === 'privacy' ? (
+          // Privacy Policy Page
+          <PrivacyPolicyPage onBack={handleNavigateHome} />
+        ) : currentView === 'terms' ? (
+          // Terms & Conditions Page
+          <TermsPage onBack={handleNavigateHome} />
+        ) : currentView === 'support' ? (
+          // Support & Contact Page
+          <SupportPage onBack={handleNavigateHome} onShowToast={setToastMessage} />
+        ) : currentView === 'pay' ? (
+          // Payment Page View
+          routeError ? (
             <div className="max-w-lg mx-auto py-8 px-4">
               <ErrorState
                 title={routeError.title}
@@ -277,16 +352,16 @@ export default function App() {
                 <Zap className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Instant Client-Side UPI Generator</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 id="main-heading" className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Create Secure UPI Payment Links Instantly
-              </h2>
+              </h1>
               <p className="mt-3 text-sm sm:text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
                 Generate shareable, self-contained payment links and dynamic QR codes with no server storage, database, or sign-up needed.
               </p>
             </div>
 
             {/* Generator Card */}
-            <div className="max-w-xl mx-auto">
+            <div id="generator" className="max-w-xl mx-auto scroll-mt-20">
               <div className="bg-white border border-slate-200/90 rounded-3xl shadow-sm overflow-hidden transition-all">
                 {/* Form Card Header */}
                 <div className="p-5 sm:p-6 bg-slate-900 text-white flex items-center justify-between">
@@ -334,6 +409,9 @@ export default function App() {
             {/* How It Works Section */}
             <HowItWorks />
 
+            {/* Popular Use Cases & Features (High-Volume Search Intent) */}
+            <SeoFeaturesSection />
+
             {/* Frequently Asked Questions (SEO & User Assurance) */}
             <FaqSection />
           </div>
@@ -343,8 +421,8 @@ export default function App() {
       {/* Global Toast Notification */}
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
-      {/* Universal Footer (Only shown on home view) */}
-      {currentView !== 'pay' && <Footer />}
+      {/* Universal Footer (Shown on all views except active payment view) */}
+      {currentView !== 'pay' && <Footer onNavigate={handleNavigateTo} />}
     </div>
   );
 }

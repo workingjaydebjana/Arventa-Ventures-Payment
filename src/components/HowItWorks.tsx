@@ -24,7 +24,7 @@ export const HowItWorks: React.FC = () => {
   ];
 
   return (
-    <section className="w-full max-w-4xl mx-auto my-12 px-4 sm:px-6">
+    <section id="how-it-works" className="w-full max-w-4xl mx-auto my-12 px-4 sm:px-6 scroll-mt-20">
       <div className="text-center mb-8">
         <h3 className="text-xs font-bold tracking-widest uppercase text-indigo-600 mb-1">
           Simple Workflow
