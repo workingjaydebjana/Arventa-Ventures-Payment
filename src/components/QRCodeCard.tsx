@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { QrCode, Download, Check } from 'lucide-react';
+import { ARVENTA_LOGO_DATA_URL } from '../assets/logo';
 
 interface QRCodeCardProps {
   qrData: string;
@@ -9,8 +10,6 @@ interface QRCodeCardProps {
   downloadFilename?: string;
   size?: number;
 }
-
-const ARVENTA_LOGO_URL = 'https://i.ibb.co/sd4BdMsr/FB-IMG-1786329349374-removebg-preview.png';
 
 export const QRCodeCard: React.FC<QRCodeCardProps> = ({
   qrData,
@@ -27,27 +26,93 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
     let isMounted = true;
     setLoading(true);
 
-    QRCode.toDataURL(qrData, {
-      width: size * 2, // render 2x for retina sharpness
-      margin: 1.5,
-      errorCorrectionLevel: 'H',
-      color: {
-        dark: '#0f172a',
-        light: '#ffffff',
-      },
-    })
-      .then((url) => {
+    const renderQrWithCenterLogo = async () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const renderSize = Math.max(512, size * 2);
+        canvas.width = renderSize;
+        canvas.height = renderSize;
+
+        // 1. Generate QR Code onto canvas with High ('H') error correction (up to 30% recovery)
+        await QRCode.toCanvas(canvas, qrData, {
+          width: renderSize,
+          margin: 1.5,
+          errorCorrectionLevel: 'H',
+          color: {
+            dark: '#0f172a',
+            light: '#ffffff',
+          },
+        });
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const center = renderSize / 2;
+          const badgeRadius = renderSize * 0.13; // ~26% diameter, completely safe with 30% error tolerance
+
+          // 2. Draw circular white badge in the center
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(center, center, badgeRadius, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = 'rgba(15, 23, 42, 0.2)';
+          ctx.shadowBlur = Math.round(renderSize * 0.015);
+          ctx.fill();
+
+          ctx.shadowColor = 'transparent';
+          ctx.lineWidth = Math.max(2, Math.round(renderSize * 0.01));
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.stroke();
+
+          // 3. Load & draw the bold Arventa Ventures logo directly onto the canvas
+          await new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(center, center, badgeRadius - 2, 0, Math.PI * 2);
+              ctx.clip();
+              const logoSize = badgeRadius * 1.55;
+              ctx.drawImage(
+                img,
+                center - logoSize / 2,
+                center - logoSize / 2,
+                logoSize,
+                logoSize
+              );
+              ctx.restore();
+              resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = ARVENTA_LOGO_DATA_URL;
+          });
+          ctx.restore();
+        }
+
         if (isMounted) {
-          setDataUrl(url);
+          setDataUrl(canvas.toDataURL('image/png'));
           setLoading(false);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('QR generation error:', err);
-        if (isMounted) {
-          setLoading(false);
+        // Fallback to basic QR code without logo on canvas
+        try {
+          const basicUrl = await QRCode.toDataURL(qrData, {
+            width: size * 2,
+            margin: 1.5,
+            errorCorrectionLevel: 'H',
+            color: { dark: '#0f172a', light: '#ffffff' },
+          });
+          if (isMounted) {
+            setDataUrl(basicUrl);
+            setLoading(false);
+          }
+        } catch {
+          if (isMounted) setLoading(false);
         }
-      });
+      }
+    };
+
+    renderQrWithCenterLogo();
 
     return () => {
       isMounted = false;
@@ -103,20 +168,19 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
           <div className="relative group">
             <img
               src={dataUrl}
-              alt="Payment QR Code"
+              alt="Payment QR Code with Arventa Logo"
               width={size}
               height={size}
               className="rounded-lg object-contain mx-auto block"
               referrerPolicy="no-referrer"
             />
-            {/* Center Company Logo Overlay */}
+            {/* Center Company Logo Overlay for extra sharpness */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-12 h-12 rounded-full bg-white shadow-md border-2 border-slate-100 flex items-center justify-center p-1 overflow-hidden">
+              <div className="w-13 h-13 rounded-full bg-white shadow-md border-2 border-slate-200 flex items-center justify-center p-1.5 overflow-hidden">
                 <img
-                  src={ARVENTA_LOGO_URL}
-                  alt="Company Logo"
+                  src={ARVENTA_LOGO_DATA_URL}
+                  alt="Arventa Ventures Logo"
                   className="w-full h-full object-contain rounded-full"
-                  referrerPolicy="no-referrer"
                 />
               </div>
             </div>

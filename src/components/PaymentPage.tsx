@@ -53,25 +53,91 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({
     let isMounted = true;
     setQrLoading(true);
 
-    QRCode.toDataURL(upiUri, {
-      width: 512,
-      margin: 1,
-      errorCorrectionLevel: 'H', // High error correction (30%) ensures reliable scanning with center logo
-      color: {
-        dark: '#0f172a',
-        light: '#ffffff',
-      },
-    })
-      .then((url) => {
+    const renderPaymentQr = async () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const renderSize = 512;
+        canvas.width = renderSize;
+        canvas.height = renderSize;
+
+        await QRCode.toCanvas(canvas, upiUri, {
+          width: renderSize,
+          margin: 1.5,
+          errorCorrectionLevel: 'H',
+          color: {
+            dark: '#0f172a',
+            light: '#ffffff',
+          },
+        });
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const center = renderSize / 2;
+          const badgeRadius = renderSize * 0.13;
+
+          // Draw circular white badge
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(center, center, badgeRadius, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = 'rgba(15, 23, 42, 0.18)';
+          ctx.shadowBlur = Math.round(renderSize * 0.015);
+          ctx.fill();
+
+          ctx.shadowColor = 'transparent';
+          ctx.lineWidth = Math.max(2, Math.round(renderSize * 0.01));
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.stroke();
+
+          // Load & draw bold Arventa logo
+          await new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(center, center, badgeRadius - 2, 0, Math.PI * 2);
+              ctx.clip();
+              const logoSize = badgeRadius * 1.55;
+              ctx.drawImage(
+                img,
+                center - logoSize / 2,
+                center - logoSize / 2,
+                logoSize,
+                logoSize
+              );
+              ctx.restore();
+              resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = ARVENTA_LOGO_DATA_URL;
+          });
+          ctx.restore();
+        }
+
         if (isMounted) {
-          setQrDataUrl(url);
+          setQrDataUrl(canvas.toDataURL('image/png'));
           setQrLoading(false);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('QR generation error:', err);
-        if (isMounted) setQrLoading(false);
-      });
+        try {
+          const basicUrl = await QRCode.toDataURL(upiUri, {
+            width: 512,
+            margin: 1.5,
+            errorCorrectionLevel: 'H',
+            color: { dark: '#0f172a', light: '#ffffff' },
+          });
+          if (isMounted) {
+            setQrDataUrl(basicUrl);
+            setQrLoading(false);
+          }
+        } catch {
+          if (isMounted) setQrLoading(false);
+        }
+      }
+    };
+
+    renderPaymentQr();
 
     return () => {
       isMounted = false;
