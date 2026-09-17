@@ -1,0 +1,8 @@
+{
+  "name": "Remix Arventa Ventures Payment",
+  "description": "Create and share secure, client-side UPI payment links instantly with a premium, responsive React interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
