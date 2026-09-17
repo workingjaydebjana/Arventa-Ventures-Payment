@@ -1,0 +1,22 @@
+{
+  "name": "Arventa Ventures Payment - UPI Payment Link & QR Generator",
+  "short_name": "Arventa Payment",
+  "description": "Create instant, secure client-side UPI payment links and dynamic QR codes for Google Pay, PhonePe, Paytm, and BHIM.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-highres.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

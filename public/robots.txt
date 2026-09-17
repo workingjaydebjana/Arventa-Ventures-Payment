@@ -1,0 +1,6 @@
+# Robots.txt for https://payment.arventaventures.online
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://payment.arventaventures.online/sitemap.xml

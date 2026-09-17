@@ -305,7 +305,7 @@ export function buildShareablePaymentUrl(data: PaymentData): string {
   const origin =
     typeof window !== 'undefined' && window.location.origin
       ? window.location.origin
-      : 'https://arventa-payment.web.app';
+      : 'https://payment.arventaventures.online';
 
   const token = encodeSecureToken(data);
   return `${origin}/pay?p=${token}`;

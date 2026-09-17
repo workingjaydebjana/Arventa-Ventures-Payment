@@ -12,6 +12,7 @@ import { GeneratedLinkCard } from './components/GeneratedLinkCard';
 import { PaymentPage } from './components/PaymentPage';
 import { ErrorState } from './components/ErrorState';
 import { HowItWorks } from './components/HowItWorks';
+import { FaqSection } from './components/FaqSection';
 import { PrivacyNote } from './components/PrivacyNote';
 import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
@@ -332,6 +333,9 @@ export default function App() {
 
             {/* How It Works Section */}
             <HowItWorks />
+
+            {/* Frequently Asked Questions (SEO & User Assurance) */}
+            <FaqSection />
           </div>
         )}
       </main>
